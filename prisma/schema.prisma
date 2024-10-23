@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  email      String   @unique
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  // User와 RowData 간의 관계 설정
+  rowData    RowData[] // 한 User가 여러 RowData를 가질 수 있는 관계
+}
+
+model RowData {
+  id          Int      @id @default(autoincrement())
+  status      String   
+  method      String   
+  endPoint    String   
+  queryString String   
+  request     Json
+  response    Json
+  memo        String   @db.Text 
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // 외래 키 추가
+  userId      Int       // User의 ID를 참조하는 외래 키
+  user        User      @relation(fields: [userId], references: [id]) // User와의 관계 설정
+}
+
