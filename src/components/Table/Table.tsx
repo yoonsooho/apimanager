@@ -2,15 +2,14 @@
 import { theadData } from "@/data";
 import { getTokenInfo } from "@/lib/getClientAccessTokenUserInfo";
 import { rowElementType } from "@/type/rowElementType";
-import { useEffect, useState } from "react";
-import TableElement from "../TableElement/TableElement";
 import { JsonValue } from "@prisma/client/runtime/library";
+import { memo, useEffect, useState } from "react";
+import TableElement from "../TableElement/TableElement";
+import { useSearchParams } from "next/navigation";
 
-type props = {
-    data: rowElementType[];
-};
-
-const Table = ({ data }: props) => {
+const Table = () => {
+    const searchParams = useSearchParams();
+    console.log(searchParams.get("project"));
     const [token, setToken] = useState({
         email: "",
         exp: 0,
@@ -42,11 +41,34 @@ const Table = ({ data }: props) => {
         });
     };
     useEffect(() => {
-        const userInfo = getTokenInfo(document.cookie);
-        setToken(userInfo);
-        console.log(userInfo);
-        setTableData([...data]);
+        setToken(getTokenInfo(document.cookie));
     }, []);
+    useEffect(() => {
+        const getRowData = async () => {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BASE_URL}/api/row/list?projectId=${searchParams.get("project")}&userId=${
+                    token.userId
+                }`,
+                {
+                    method: "GET",
+                    credentials: "include",
+                }
+            );
+
+            if (!res.ok) {
+                console.error(`Error fetching data: ${res.status} - ${res.statusText}`);
+                if (res.status === 401) {
+                    return <div>인증이 필요합니다. 다시 로그인해 주세요.</div>;
+                }
+                return <div>데이터를 가져오는 중 오류가 발생했습니다.</div>;
+            }
+            let data = await res.json();
+            setTableData(data.data);
+        };
+        if (searchParams.get("project") && token.userId) {
+            getRowData();
+        }
+    }, [searchParams.get("project"), token.userId]);
     return (
         <>
             <table>
@@ -71,7 +93,7 @@ const Table = ({ data }: props) => {
                                 response,
                                 memo,
                                 updated_at,
-                                userId,
+
                                 id,
                             }) => {
                                 return (
@@ -88,7 +110,6 @@ const Table = ({ data }: props) => {
                                             response={response}
                                             memo={memo}
                                             updated_at={updated_at}
-                                            userId={userId}
                                             id={id}
                                         />
                                     </tr>
@@ -104,8 +125,8 @@ const Table = ({ data }: props) => {
                         return [
                             ...pre,
                             {
-                                status: "",
-                                method: "",
+                                status: "시작전",
+                                method: "GET",
                                 endPoint: "",
                                 queryString: "",
                                 request: {},

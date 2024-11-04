@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 
 export async function POST(req: NextRequest) {
     try {
@@ -15,12 +16,15 @@ export async function POST(req: NextRequest) {
         const prisma = new PrismaClient();
 
         if (email && password) {
+            const hash = bcrypt.hashSync(password, 12);
+            const match = await bcrypt.compare(password, hash);
+            if (!match) return NextResponse.json({ message: "비밀번호가 틀렸습니다." });
             const user = await prisma.user.findUnique({
                 where: {
                     email: email,
-                    password: password,
                 },
             });
+            if (!user) return NextResponse.json({ message: "아이디 혹은 비밀번호를 잘못입력하셨습니다." });
             if (!process.env.JWT_SECRET_KEY) return NextResponse.json({ message: "에러가 발생했습니다" });
             // JWT 토큰 생성 (예시)
             const refreshToken = jwt.sign({ userId: user?.id, email: user?.email }, process.env.JWT_SECRET_KEY, {

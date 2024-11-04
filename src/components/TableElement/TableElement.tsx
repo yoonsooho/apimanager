@@ -1,6 +1,7 @@
 "use client";
 import { rowElementType } from "@/type/rowElementType";
 import dayjs from "dayjs";
+import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 
 type TableElementProps = Omit<rowElementType, "created_at"> & {
@@ -18,12 +19,13 @@ const TableElement = ({
     response,
     memo,
     updated_at,
-    userId,
     id,
     changeRowFn,
     changeAllRowFn,
     delteAllRowFn,
 }: TableElementProps) => {
+    const searchParams = useSearchParams();
+
     return (
         <>
             <td className="border border-gray-400">
@@ -156,8 +158,8 @@ const TableElement = ({
                                 response,
                                 memo,
                                 updated_at,
-                                userId,
                                 id,
+                                projectId: Number(searchParams.get("project")),
                             }),
                         });
                         if (!result.ok) {
@@ -169,7 +171,6 @@ const TableElement = ({
                         toast.success(id === 0 ? "추가가 완료 되었습니다." : "수정이 완료 되었습니다.");
                     }}
                 >
-                    {id}
                     {id === 0 ? "추가하기" : "수정하기"}
                 </button>
             </td>
@@ -178,7 +179,7 @@ const TableElement = ({
                     onClick={async () => {
                         const result = await fetch(`/api/row/delete`, {
                             method: "DELETE",
-                            body: JSON.stringify({ id: id, userId: userId }),
+                            body: JSON.stringify({ id: id }),
                         });
                         if (!result.ok) {
                             toast.error("오류가 발생했습니다. 다시 시도해 주세요.");

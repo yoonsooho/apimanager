@@ -5,14 +5,21 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     const prisma = new PrismaClient();
     try {
-        console.log("reqreqreqreqreq", req);
         const searchParams = req.nextUrl.searchParams;
+        const projectId = searchParams.get("projectId");
         const userId = searchParams.get("userId");
 
         // rowData를 조회
         const rowData = await prisma.rowData.findMany({
             where: {
-                userId: Number(userId),
+                projectId: Number(projectId),
+                project: {
+                    userProjects: {
+                        some: {
+                            userId: Number(userId),
+                        },
+                    },
+                },
             },
             orderBy: {
                 id: "asc", // 오름차순 정렬
