@@ -43,22 +43,22 @@ model RowData {
   method      String   
   endPoint    String   
   queryString String   
-  request     Json
-  response    Json
+  request     String   @db.Text 
+  response    String   @db.Text 
   memo        String   @db.Text 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // 프로젝트와의 관계
   projectId   Int
-  project     Project   @relation(fields: [projectId], references: [id]) // Project와의 관계 설정
+  project     Project   @relation(fields: [projectId], references: [id],onDelete: Cascade) // Project와의 관계 설정
 }
 
 // 사용자와 프로젝트 간의 중간 테이블 모델
 model UserProject {
   user      User    @relation(fields: [userId], references: [id])
   userId    Int
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id],onDelete: Cascade)
   projectId Int
 
   // 권한 필드 추가 (예: VIEWER, EDITOR)

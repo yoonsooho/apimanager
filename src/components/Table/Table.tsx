@@ -3,13 +3,12 @@ import { theadData } from "@/data";
 import { getTokenInfo } from "@/lib/getClientAccessTokenUserInfo";
 import { rowElementType } from "@/type/rowElementType";
 import { JsonValue } from "@prisma/client/runtime/library";
-import { memo, useEffect, useState } from "react";
-import TableElement from "../TableElement/TableElement";
 import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import TableElement from "../TableElement/TableElement";
 
 const Table = () => {
     const searchParams = useSearchParams();
-    console.log(searchParams.get("project"));
     const [token, setToken] = useState({
         email: "",
         exp: 0,
@@ -62,7 +61,15 @@ const Table = () => {
                 }
                 return <div>데이터를 가져오는 중 오류가 발생했습니다.</div>;
             }
-            let data = await res.json();
+            const data = await res.json();
+            console.log(data.data);
+            // const newData = data.data.map((el) => {
+            //     return {
+            //         ...el,
+            //         request: JSON.stringify(el.request, null, 2).toString(),
+            //         response: JSON.stringify(el.response, null, 2).toString(),
+            //     };
+            // });
             setTableData(data.data);
         };
         if (searchParams.get("project") && token.userId) {
@@ -71,7 +78,7 @@ const Table = () => {
     }, [searchParams.get("project"), token.userId]);
     return (
         <>
-            <table>
+            <table className="w-full">
                 <thead>
                     <tr>
                         {theadData.map((el) => (
@@ -92,12 +99,12 @@ const Table = () => {
                                 request,
                                 response,
                                 memo,
-                                updated_at,
+                                updatedAt,
 
                                 id,
                             }) => {
                                 return (
-                                    <tr key={`tbody ${id}`}>
+                                    <React.Fragment key={`wrraper ${id}`}>
                                         <TableElement
                                             changeAllRowFn={changeAllRowFn}
                                             changeRowFn={changeRowFn}
@@ -109,10 +116,10 @@ const Table = () => {
                                             request={request}
                                             response={response}
                                             memo={memo}
-                                            updated_at={updated_at}
+                                            updatedAt={updatedAt}
                                             id={id}
                                         />
-                                    </tr>
+                                    </React.Fragment>
                                 );
                             }
                         )}
@@ -129,12 +136,12 @@ const Table = () => {
                                 method: "GET",
                                 endPoint: "",
                                 queryString: "",
-                                request: {},
-                                response: {},
+                                request: "",
+                                response: "",
                                 memo: "",
-                                updated_at: new Date(),
-                                created_at: new Date(),
-                                userId: token.userId,
+                                updatedAt: new Date(),
+                                createdAt: new Date(),
+                                // userId: token.userId,
                                 id: 0,
                             },
                         ];

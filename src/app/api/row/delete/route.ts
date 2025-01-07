@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(req: NextRequest) {
     try {
-        const { userId, id } = await req.json();
+        const { projectId, id } = await req.json();
 
         const prisma = new PrismaClient();
         const deleteRowData = await prisma.rowData.delete({
             where: {
-                userId: userId,
+                projectId: projectId,
                 id: id,
             },
         });

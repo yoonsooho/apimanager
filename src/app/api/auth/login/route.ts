@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 
 export async function POST(req: NextRequest) {
     try {
-        const formData = await req.formData();
-        const emailEntry = formData.get("email");
-        const passwordEntry = formData.get("password");
+        const data = await req.json();
+        const emailEntry = data?.email;
+        const passwordEntry = data?.password;
 
         // 값이 'string'인 경우만 처리하기 위해 타입 체크
         const email = typeof emailEntry === "string" ? emailEntry : undefined;
@@ -24,17 +24,37 @@ export async function POST(req: NextRequest) {
                     email: email,
                 },
             });
-            if (!user) return NextResponse.json({ message: "아이디 혹은 비밀번호를 잘못입력하셨습니다." });
-            if (!process.env.JWT_SECRET_KEY) return NextResponse.json({ message: "에러가 발생했습니다" });
+
+            // if (!user) return NextResponse.json({ status: 401, message: "아이디 혹은 비밀번호를 잘못입력하셨습니다." });
+            if (!user) {
+                return new Response(JSON.stringify({ message: "아이디 혹은 비밀번호를 잘못 입력하셨습니다." }), {
+                    status: 401,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+            if (!process.env.JWT_SECRET_KEY) {
+                return new Response(JSON.stringify({ message: "아이디 혹은 비밀번호를 잘못 입력하셨습니다." }), {
+                    status: 500,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
             // JWT 토큰 생성 (예시)
-            const refreshToken = jwt.sign({ userId: user?.id, email: user?.email }, process.env.JWT_SECRET_KEY, {
-                expiresIn: "15h",
-            });
-            const accessToken = jwt.sign({ userId: user?.id, email: user?.email }, process.env.JWT_SECRET_KEY, {
-                expiresIn: "15h",
-            });
+            const refreshToken = jwt.sign(
+                { userId: user?.id, email: user?.email, username: user.username },
+                process.env.JWT_SECRET_KEY,
+                {
+                    expiresIn: "15h",
+                }
+            );
+            const accessToken = jwt.sign(
+                { userId: user?.id, email: user?.email, username: user.username },
+                process.env.JWT_SECRET_KEY,
+                {
+                    expiresIn: "15h",
+                }
+            );
             // 리다이렉트와 함께 쿠키 설정
-            const response = NextResponse.redirect(new URL("/", req.url));
+            const response = NextResponse.json({ status: 200, message: "로그인에 성공했습니다." });
 
             // 쿠키 설정 (예시: 토큰 저장)
             response.cookies.set("refreshToken", "Bearer " + refreshToken, {
@@ -51,7 +71,7 @@ export async function POST(req: NextRequest) {
             });
             return response;
         } else {
-            return NextResponse.json({ message: "잘못된 입력입니다." });
+            return NextResponse.json({ status: 401, message: "잘못된 입력입니다." });
         }
 
         // const loginPw: string = data.userPw;

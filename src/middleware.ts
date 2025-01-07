@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { isAuthenticated, isReqAuthenticated } from "./lib/jwtTokenControl";
+import { isReqAuthenticated } from "./lib/jwtTokenControl";
 
 export async function middleware(req: NextRequest) {
     // 로그인 및 Next.js 내부 요청은 미들웨어를 통과시킴
@@ -12,10 +12,9 @@ export async function middleware(req: NextRequest) {
     ) {
         return NextResponse.next();
     }
-    const refreshToken = req.cookies.get("refreshToken");
-    console.log("refreshToken", refreshToken);
+
     if (req.nextUrl.pathname.startsWith("/api/")) {
-        const refreshToken = req.cookies.get("refreshToken");
+        // const refreshToken = req.cookies.get("refreshToken");
         // if (req.headers.get("Authorization")) {
         // } else {
         //     return NextResponse.json({ error: "unAuth" }, { status: 401 });

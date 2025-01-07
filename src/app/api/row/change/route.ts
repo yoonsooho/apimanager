@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
     try {
-        const { userId, id, status, method, endPoint, queryString, request, response, memo } = await req.json();
+        const { id, status, method, endPoint, queryString, request, response, memo, projectId } = await req.json();
 
         const prisma = new PrismaClient();
         const changeRowData = await prisma.rowData.update({
             where: {
-                userId: userId,
+                projectId: projectId,
                 id: id,
             },
             data: {
@@ -19,7 +19,7 @@ export async function PUT(req: NextRequest) {
                 request,
                 response,
                 memo,
-                updated_at: new Date(),
+                updatedAt: new Date(),
             },
         });
         console.log("changeRowData", changeRowData);
@@ -33,9 +33,9 @@ export async function PUT(req: NextRequest) {
                 request,
                 response,
                 memo,
-                updated_at: new Date(),
+                updatedAt: new Date(),
                 id,
-                userId,
+                projectId,
             },
         });
     } catch (error) {

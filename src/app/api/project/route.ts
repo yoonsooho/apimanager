@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-let prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
         const data = await req.json();
 
         if (typeof data?.name === "string") {
-            await prisma.project.create({
+            const result = await prisma.project.create({
                 data: {
                     name: data.name,
                     userProjects: {
@@ -20,11 +20,10 @@ export async function POST(req: NextRequest) {
                     },
                 },
             });
+            return NextResponse.json({ message: "성공했습니다.", data: result }, { status: 200 });
         } else {
             return NextResponse.json({ message: "잘못된 입력입니다." }, { status: 400 });
         }
-
-        return NextResponse.redirect(new URL("/login", req.url), { status: 302 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ message: "서버 오류가 발생했습니다." }, { status: 500 });
@@ -38,7 +37,7 @@ export async function GET(req: NextRequest) {
         const userId = searchParams.get("userId");
 
         if (userId) {
-            let result = await prisma.project.findMany({
+            const result = await prisma.project.findMany({
                 where: {
                     userProjects: {
                         some: {

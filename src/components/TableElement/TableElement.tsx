@@ -2,9 +2,10 @@
 import { rowElementType } from "@/type/rowElementType";
 import dayjs from "dayjs";
 import { useSearchParams } from "next/navigation";
+import { ChangeEvent, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 
-type TableElementProps = Omit<rowElementType, "created_at"> & {
+type TableElementProps = Omit<rowElementType, "createdAt" | "userId"> & {
     changeRowFn: (id: number, key: string, value: string) => void;
     changeAllRowFn: (id: number, data: rowElementType) => void;
     delteAllRowFn: (id: number) => void;
@@ -18,7 +19,7 @@ const TableElement = ({
     request,
     response,
     memo,
-    updated_at,
+    updatedAt,
     id,
     changeRowFn,
     changeAllRowFn,
@@ -26,18 +27,42 @@ const TableElement = ({
 }: TableElementProps) => {
     const searchParams = useSearchParams();
 
+    // 각 textarea에 대한 ref
+    const endPointRef = useRef<HTMLTextAreaElement | null>(null);
+    const queryStringRef = useRef<HTMLTextAreaElement | null>(null);
+    const requestRef = useRef<HTMLTextAreaElement | null>(null);
+    const responseRef = useRef<HTMLTextAreaElement | null>(null);
+    const memoRef = useRef<HTMLTextAreaElement | null>(null);
+
+    // 텍스트 영역 높이 자동 조정
+    const adjustHeight = (textarea: HTMLTextAreaElement) => {
+        if (textarea) {
+            textarea.style.height = "auto"; // 높이를 초기화
+            textarea.style.height = `${textarea.scrollHeight}px`; // 내용에 맞는 높이로 설정
+        }
+    };
+
+    const onChangeFn = (key: string, e: ChangeEvent<HTMLTextAreaElement>) => {
+        changeRowFn(id, key, e.target.value);
+        adjustHeight(e.target); // e.target을 HTMLTextAreaElement로 타입 지정
+    };
+
+    // 컴포넌트 초기 렌더링 후 각 텍스트 영역의 높이를 자동으로 설정
+    useEffect(() => {
+        if (endPointRef.current) adjustHeight(endPointRef.current);
+        if (queryStringRef.current) adjustHeight(queryStringRef.current);
+        if (requestRef.current) adjustHeight(requestRef.current);
+        if (responseRef.current) adjustHeight(responseRef.current);
+        if (memoRef.current) adjustHeight(memoRef.current);
+    }, [endPoint, queryString, request, response, memo]);
+
     return (
-        <>
-            <td className="border border-gray-400">
+        <tr>
+            <td className="border border-gray-400 p-2">
                 <select
-                    name=""
-                    id=""
-                    key={`${id} ${status}`}
                     value={status}
-                    onChange={(e) => {
-                        // rowValueChangeFn("status", e.target.value);
-                        changeRowFn(id, "status", e.target.value);
-                    }}
+                    onChange={(e) => changeRowFn(id, "status", e.target.value)}
+                    className="w-full h-full"
                 >
                     <option value="시작전">시작전</option>
                     <option value="중단됨">중단됨</option>
@@ -46,15 +71,11 @@ const TableElement = ({
                     <option value="최종완료">최종완료</option>
                 </select>
             </td>
-            <td className="border border-gray-400">
+            <td className="border border-gray-400 p-2">
                 <select
-                    name=""
-                    id=""
-                    key={`${id} ${method}`}
                     value={method}
-                    onChange={(e) => {
-                        changeRowFn(id, "method", e.target.value);
-                    }}
+                    onChange={(e) => changeRowFn(id, "method", e.target.value)}
+                    className="w-full h-full"
                 >
                     <option value="GET">GET</option>
                     <option value="POST">POST</option>
@@ -63,101 +84,80 @@ const TableElement = ({
                     <option value="DELETE">DELETE</option>
                 </select>
             </td>
-            <td className="border border-gray-400">
+            <td className="border border-gray-400 p-2 h-full">
                 <textarea
-                    name=""
-                    id=""
+                    ref={endPointRef}
                     value={endPoint}
-                    className="min-h-full resize-none"
-                    onChange={(e) => {
-                        changeRowFn(id, "endPoint", e.target.value);
-                    }}
+                    className="w-full h-full resize-none overflow-hidden p-2"
+                    onChange={(e) => onChangeFn("endPoint", e)}
                 />
             </td>
-            <td className="border border-gray-400">
+            <td className="border border-gray-400 p-2">
                 <textarea
-                    name=""
-                    id=""
+                    ref={queryStringRef}
                     value={queryString}
-                    className="min-h-full resize-none"
-                    onChange={(e) => {
-                        changeRowFn(id, "queryString", e.target.value);
-                    }}
+                    className="w-full h-full resize-none overflow-hidden p-2"
+                    onChange={(e) => onChangeFn("queryString", e)}
                 />
             </td>
-            <td className="border border-gray-400">
-                {/* 요청 보낼때 request(일단JSON) */}
-                {/* {JSON.stringify(requestJSON)} */}
-                {request &&
-                    typeof request === "object" &&
-                    !Array.isArray(request) &&
-                    Object.entries(request).map(([key, value]) => {
-                        return (
-                            <div key={`request${key}`} className="whitespace-nowrap">
-                                <span className="text-red-300">{key}</span> :{" "}
-                                <span>{value !== null && value?.toString()}</span>
-                            </div>
-                        );
-                    })}
+            <td className="border border-gray-400 p-2">
+                <textarea
+                    ref={requestRef}
+                    value={request}
+                    className="w-full h-full resize-none overflow-hidden p-2"
+                    onChange={(e) => onChangeFn("request", e)}
+                />
                 <button
+                    className="w-full mt-2 p-2 bg-blue-500 text-white hover:bg-blue-600"
                     onClick={() => {
-                        navigator.clipboard.writeText(JSON.stringify(request));
-                        toast.success("json으로 복사 되었습니다.");
-                        console.log(JSON.stringify(request));
+                        // navigator.clipboard.writeText(JSON.stringify(request));
+                        // toast.success("JSON으로 복사 되었습니다.");
                     }}
                 >
                     toJSON COPY
                 </button>
             </td>
-            <td className="border border-gray-400">
-                {response &&
-                    typeof response === "object" &&
-                    !Array.isArray(response) &&
-                    Object.entries(response).map(([key, value]) => {
-                        return (
-                            <div key={`response${key}`} className="whitespace-nowrap">
-                                <span className="text-red-300">{key}</span> :{" "}
-                                <span>{value !== null && value?.toString()}</span>
-                            </div>
-                        );
-                    })}
+            <td className="border border-gray-400 p-2">
+                <textarea
+                    ref={responseRef}
+                    value={response}
+                    className="w-full h-full resize-none overflow-hidden p-2"
+                    onChange={(e) => onChangeFn("response", e)}
+                />
                 <button
+                    className="w-full mt-2 p-2 bg-blue-500 text-white hover:bg-blue-600"
                     onClick={() => {
-                        navigator.clipboard.writeText(JSON.stringify(response));
-                        toast.success("json으로 복사 되었습니다.");
-                        console.log(JSON.stringify(response));
+                        // navigator.clipboard.writeText(JSON.stringify(response));
+                        // toast.success("JSON으로 복사 되었습니다.");
                     }}
                 >
                     toJSON COPY
                 </button>
             </td>
-            <td className="border border-gray-400">
-                <div className="flex-grow">
-                    <textarea
-                        value={memo}
-                        className="min-h-full resize-none"
-                        onChange={(e) => {
-                            changeRowFn(id, "memo", e.target.value);
-                        }}
-                    />
-                </div>
+            <td className="border border-gray-400 p-2">
+                <textarea
+                    ref={memoRef}
+                    value={memo}
+                    className="w-full h-full resize-none overflow-hidden p-2"
+                    onChange={(e) => onChangeFn("memo", e)}
+                />
             </td>
-            <td className="border border-gray-400">{dayjs(updated_at).format("YYYY-MM-DD HH:mm:ssZ[Z]")}</td>
-            <td className="border border-gray-400">
+            <td className="border border-gray-400 p-2">{dayjs(updatedAt).format("YYYY-MM-DD / HH:mm")}</td>
+            <td className="border border-gray-400 p-2">
                 <button
                     onClick={async () => {
-                        console.log(id);
+                        console.log(endPoint.trim());
                         const result = await fetch(`/api/row/${id === 0 ? "add" : "change"}`, {
                             method: id === 0 ? "POST" : "PUT",
                             body: JSON.stringify({
                                 status,
                                 method,
-                                endPoint,
-                                queryString,
-                                request,
-                                response,
-                                memo,
-                                updated_at,
+                                endPoint: endPoint.trim(),
+                                queryString: queryString.trim(),
+                                request: request.trim(),
+                                response: response.trim(),
+                                memo: memo.trim(),
+                                updatedAt,
                                 id,
                                 projectId: Number(searchParams.get("project")),
                             }),
@@ -166,7 +166,7 @@ const TableElement = ({
                             toast.error("오류가 발생했습니다. 다시 시도해 주세요.");
                         }
                         const data = await result.json();
-                        data.data.updated_at = new Date(data.data.updated_at);
+                        data.data.updatedAt = new Date(data.data.updatedAt);
                         changeAllRowFn(id, data.data);
                         toast.success(id === 0 ? "추가가 완료 되었습니다." : "수정이 완료 되었습니다.");
                     }}
@@ -174,7 +174,7 @@ const TableElement = ({
                     {id === 0 ? "추가하기" : "수정하기"}
                 </button>
             </td>
-            <td className="border border-gray-400">
+            <td className="border border-gray-400 p-2">
                 <button
                     onClick={async () => {
                         const result = await fetch(`/api/row/delete`, {
@@ -185,7 +185,6 @@ const TableElement = ({
                             toast.error("오류가 발생했습니다. 다시 시도해 주세요.");
                         }
                         const data = await result.json();
-
                         delteAllRowFn(data.data.id);
                         toast.success("삭제가 완료 되었습니다.");
                     }}
@@ -193,7 +192,7 @@ const TableElement = ({
                     삭제하기
                 </button>
             </td>
-        </>
+        </tr>
     );
 };
 

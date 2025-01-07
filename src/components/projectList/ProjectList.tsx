@@ -2,7 +2,6 @@
 
 import { getTokenInfo } from "@/lib/getClientAccessTokenUserInfo";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function ProjectList() {
@@ -32,26 +31,33 @@ export default function ProjectList() {
     return (
         <div>
             {/* <RowList /> */}
-            {projectList?.map((el) => {
-                return (
-                    <Link
-                        href={{
-                            pathname: "",
-                            query: { project: el.id },
-                        }}
-                        key={el.id}
-                    >
-                        {el?.name}
-                    </Link>
-                );
-            })}
+            <div className="flex flex-row gap-2">
+                {projectList?.map((el) => {
+                    return (
+                        <Link
+                            href={{
+                                pathname: "",
+                                query: { project: el.id },
+                            }}
+                            key={el.id}
+                        >
+                            {el?.name}
+                        </Link>
+                    );
+                })}
+            </div>
             <form
                 onSubmit={async (e) => {
                     e.preventDefault();
                     const userInfo = getTokenInfo(document.cookie);
-                    let result = await fetch("/api/project", {
+                    const result = await fetch("/api/project", {
                         method: "POST",
                         body: JSON.stringify({ name: projectName, userId: userInfo.userId }),
+                    });
+                    const res = await result.json();
+                    const { id, name } = res.data;
+                    setProjectList((pre) => {
+                        return [...pre, { id, name }];
                     });
                 }}
             >
