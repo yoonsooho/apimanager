@@ -1,59 +1,17 @@
-"use client";
-import { getTokenInfo } from "@/lib/getClientAccessTokenUserInfo";
-// import { cookies } from "next/headers";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import LoginForm from "@/app/login/LoginForm";
 
-const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    // const cookie = cookies();
-    const [token, setToken] = useState({
-        email: "",
-        exp: 0,
-        iat: 0,
-        userId: 0,
-    }); // 토큰 상태 추가
-    const router = useRouter();
-    useEffect(() => {
-        setToken(getTokenInfo(document?.cookie));
-    }, []);
-    if (token?.userId)
-        return (
-            <form method="POST" action="/api/auth/logout">
-                <div>{token.email} 님 반갑습니다.</div>
-                <button>로그아웃</button>
-            </form>
-        );
+export default function LoginPage() {
     return (
-        <div>
-            <form
-                onSubmit={async (e) => {
-                    e.preventDefault();
-                    const res = await fetch("/api/auth/login", {
-                        method: "POST",
-                        body: JSON.stringify({ email, password }),
-                    });
-                    if (!res.ok) {
-                        const result = await res.json();
-                        return toast.error(result?.message);
-                    }
-
-                    const result = await res.json();
-                    console.log(result);
-                    router.push("/");
-                    toast.success(result?.message);
-                    // return;
-                }}
-            >
-                <input type="text" placeholder="이메일" onChange={(e) => setEmail(e.target.value)} />
-                <input type="password" placeholder="비번" onChange={(e) => setPassword(e.target.value)} />
-                <button type="submit">로그인</button>
-            </form>
-            <Link href={"/signUp"}>회원가입</Link>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white p-8 rounded-lg shadow-md w-96">
+                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">로그인</h2>
+                <LoginForm />
+                <div className="mt-4 text-center">
+                    <a href="/signUp" className="text-blue-500 hover:text-blue-600 text-sm font-medium">
+                        계정이 없으신가요? 회원가입
+                    </a>
+                </div>
+            </div>
         </div>
     );
-};
-export default Login;
+}
