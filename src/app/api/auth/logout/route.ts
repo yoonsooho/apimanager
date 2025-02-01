@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
     try {
         // 리다이렉트와 함께 쿠키 설정
-        const response = NextResponse.redirect(new URL("/login", req.url));
+        const response = NextResponse.redirect(new URL("/", req.url));
 
         // 쿠키 설정 (예시: 토큰 저장)
         response.cookies.set("refreshToken", "", {
