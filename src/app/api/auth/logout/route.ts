@@ -7,10 +7,7 @@ export async function POST(req: NextRequest) {
     try {
         // 리다이렉트와 함께 쿠키 설정
         const response = NextResponse.redirect(new URL("/login", req.url), {
-            // 301: Moved Permanently
-            // 302: Found (임시 리다이렉션)
-            // 303: See Other (POST 요청 후 GET으로 리다이렉트)
-            status: 303,
+            status: 302, // 임시 리다이렉트, GET으로 자동 변환
         });
 
         // 쿠키 설정
@@ -34,7 +31,7 @@ export async function POST(req: NextRequest) {
 }
 
 // OPTIONS 메서드 추가
-export async function OPTIONS(req: NextRequest) {
+export async function OPTIONS() {
     return new NextResponse(null, {
         status: 204,
         headers: {
