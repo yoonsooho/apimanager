@@ -174,8 +174,11 @@ const TableElement = ({
                             leave="transition ease-in duration-100"
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
+                            enter="transition ease-in duration-100"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
                         >
-                            <ListboxOptions className="absolute left-0 z-50 mt-1 w-48 max-h-60 overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <ListboxOptions className="fixed left-auto top-auto z-[9999] mt-1 w-48 max-h-60 overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border">
                                 {statusOptions.map((option) => (
                                     <ListboxOption
                                         key={option.value}
@@ -247,7 +250,7 @@ const TableElement = ({
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
                         >
-                            <ListboxOptions className="absolute left-0 z-50 mt-1 w-48 max-h-60 overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <ListboxOptions className="fixed left-auto top-auto z-[9999] mt-1 w-48 max-h-60 overflow-auto rounded-md bg-white py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                 {methodOptions.map((option) => (
                                     <ListboxOption
                                         key={option.value}

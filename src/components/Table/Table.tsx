@@ -77,119 +77,107 @@ const Table = () => {
         }
     }, [searchParams.get("project"), token.userId]);
     return (
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-            <div className="min-w-screen p-4">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">API 목록</h2>
-                    <button
-                        onClick={async () => {
-                            setTableData((pre) => {
-                                return [
-                                    ...pre,
-                                    {
-                                        status: "시작전",
-                                        method: "GET",
-                                        endPoint: "",
-                                        queryString: "",
-                                        request: "",
-                                        response: "",
-                                        memo: "",
-                                        updatedAt: new Date(),
-                                        createdAt: new Date(),
-                                        id: 0,
-                                    },
-                                ];
-                            });
-                        }}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center"
+        <div className="bg-white rounded-lg shadow relative p-4 min-w-screen">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">API 목록</h2>
+                <button
+                    onClick={async () => {
+                        setTableData((pre) => {
+                            return [
+                                ...pre,
+                                {
+                                    status: "시작전",
+                                    method: "GET",
+                                    endPoint: "",
+                                    queryString: "",
+                                    request: "",
+                                    response: "",
+                                    memo: "",
+                                    updatedAt: new Date(),
+                                    createdAt: new Date(),
+                                    id: 0,
+                                },
+                            ];
+                        });
+                    }}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 mr-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                     >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    새 API 추가
+                </button>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            {theadData.map((el) => (
+                                <th
+                                    key={`theadData${el}`}
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                                >
+                                    {el}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    {tableData && (
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {tableData.map(
+                                ({ status, method, endPoint, queryString, request, response, memo, updatedAt, id }) => (
+                                    <React.Fragment key={`wrapper ${id}`}>
+                                        <TableElement
+                                            changeAllRowFn={changeAllRowFn}
+                                            changeRowFn={changeRowFn}
+                                            delteAllRowFn={delteAllRowFn}
+                                            status={status}
+                                            method={method}
+                                            endPoint={endPoint}
+                                            queryString={queryString}
+                                            request={request}
+                                            response={response}
+                                            memo={memo}
+                                            updatedAt={updatedAt}
+                                            id={id}
+                                        />
+                                    </React.Fragment>
+                                )
+                            )}
+                        </tbody>
+                    )}
+                </table>
+            </div>
+
+            {tableData.length === 0 && (
+                <div className="text-center py-12">
+                    <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 mr-1"
+                            className="h-12 w-12 text-gray-400 mx-auto mb-4"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                         >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
                         </svg>
-                        새 API 추가
-                    </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                {theadData.map((el) => (
-                                    <th
-                                        key={`theadData${el}`}
-                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
-                                    >
-                                        {el}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        {tableData && (
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {tableData.map(
-                                    ({
-                                        status,
-                                        method,
-                                        endPoint,
-                                        queryString,
-                                        request,
-                                        response,
-                                        memo,
-                                        updatedAt,
-                                        id,
-                                    }) => (
-                                        <React.Fragment key={`wrapper ${id}`}>
-                                            <TableElement
-                                                changeAllRowFn={changeAllRowFn}
-                                                changeRowFn={changeRowFn}
-                                                delteAllRowFn={delteAllRowFn}
-                                                status={status}
-                                                method={method}
-                                                endPoint={endPoint}
-                                                queryString={queryString}
-                                                request={request}
-                                                response={response}
-                                                memo={memo}
-                                                updatedAt={updatedAt}
-                                                id={id}
-                                            />
-                                        </React.Fragment>
-                                    )
-                                )}
-                            </tbody>
-                        )}
-                    </table>
-                </div>
-
-                {tableData.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-12 w-12 text-gray-400 mx-auto mb-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                />
-                            </svg>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">API가 없습니다</h3>
-                            <p className="text-gray-500 mb-4">새로운 API를 추가해보세요!</p>
-                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">API가 없습니다</h3>
+                        <p className="text-gray-500 mb-4">새로운 API를 추가해보세요!</p>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };
