@@ -1,10 +1,10 @@
 "use client";
 
+import Logout from "@/components/Logout";
 import { getTokenInfo } from "@/lib/getClientAccessTokenUserInfo";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Logout from "@/components/Logout";
 
 export default function ProjectList() {
     const [projectName, setProJectName] = useState("");
@@ -12,6 +12,22 @@ export default function ProjectList() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const handleDeleteProject = async (id: number) => {
+        try {
+            const res = await fetch(`/api/project`, {
+                method: "DELETE",
+                body: JSON.stringify({ id }),
+            });
+            const data = await res.json();
+
+            const updatedList = projectList.filter((el) => el.id !== data.data.id);
+            setProjectList(updatedList);
+            router.replace(`?project=${updatedList[updatedList.length - 1].id}`);
+        } catch (error) {
+            console.error("프로젝트 삭제 실패:", error);
+        }
+    };
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -68,7 +84,7 @@ export default function ProjectList() {
                                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                     }`}
                             >
-                                {el?.name}
+                                {el?.name} <span onClick={() => handleDeleteProject(el.id)}>X</span>
                             </Link>
                         ))}
                     </div>
